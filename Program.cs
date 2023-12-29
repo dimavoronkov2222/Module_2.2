@@ -16,6 +16,10 @@ namespace Module_2._2
             {
                 connection.Open();
                 Console.WriteLine("Connection successful!");
+                InsertNewProduct(connection, "Product Name", "Product Type", 100, 10.5m);
+                InsertNewProductType(connection, "New Type");
+                InsertNewSalesManager(connection, "Manager Name");
+                InsertNewCustomerCompany(connection, "Company Name");
                 Console.Write("\nEnter a product type: ");
                 string productType = Console.ReadLine();
                 SqlCommand command = new SqlCommand("SELECT * FROM Products WHERE ProductType = @ProductType", connection);
@@ -71,6 +75,33 @@ namespace Module_2._2
                 Console.WriteLine("Error: " + ex.Message);
             }
             Console.Read();
+        }
+        static void InsertNewProduct(SqlConnection connection, string productName, string productType, int quantity, decimal cost)
+        {
+            SqlCommand insertCommand = new SqlCommand("INSERT INTO Products (ProductName, ProductType, Quantity, Cost) VALUES (@ProductName, @ProductType, @Quantity, @Cost)", connection);
+            insertCommand.Parameters.AddWithValue("@ProductName", productName);
+            insertCommand.Parameters.AddWithValue("@ProductType", productType);
+            insertCommand.Parameters.AddWithValue("@Quantity", quantity);
+            insertCommand.Parameters.AddWithValue("@Cost", cost);
+            insertCommand.ExecuteNonQuery();
+        }
+        static void InsertNewProductType(SqlConnection connection, string productType)
+        {
+            SqlCommand insertCommand = new SqlCommand("INSERT INTO ProductTypes (ProductType) VALUES (@ProductType)", connection);
+            insertCommand.Parameters.AddWithValue("@ProductType", productType);
+            insertCommand.ExecuteNonQuery();
+        }
+        static void InsertNewSalesManager(SqlConnection connection, string managerName)
+        {
+            SqlCommand insertCommand = new SqlCommand("INSERT INTO SalesManagers (ManagerName) VALUES (@ManagerName)", connection);
+            insertCommand.Parameters.AddWithValue("@ManagerName", managerName);
+            insertCommand.ExecuteNonQuery();
+        }
+        static void InsertNewCustomerCompany(SqlConnection connection, string companyName)
+        {
+            SqlCommand insertCommand = new SqlCommand("INSERT INTO Customers (CustomerName) VALUES (@CustomerName)", connection);
+            insertCommand.Parameters.AddWithValue("@CustomerName", companyName);
+            insertCommand.ExecuteNonQuery();
         }
     }
 }
