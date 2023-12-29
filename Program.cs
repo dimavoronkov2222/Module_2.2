@@ -17,6 +17,7 @@ namespace Module_2._2
                 connection.Open();
                 Console.WriteLine("Connection successful!");
                 UpdateProduct(connection, 1, "New Namfdfdse", "New Tybfdsbfdpe", 50, 15.99m);
+                DeleteProduct(connection, 1);
                 UpdateProductType(connection, 1, "New Tybfdsbfdspe");
                 UpdateSalesManager(connection, 1, "New Manafbdsbfdger Name");
                 UpdateCustomerCompany(connection, 1, "New Compbfdbdsany Name");
@@ -137,6 +138,42 @@ namespace Module_2._2
             updateCommand.Parameters.AddWithValue("@CustomerName", companyName);
             updateCommand.Parameters.AddWithValue("@CustomerID", customerId);
             updateCommand.ExecuteNonQuery();
+        }
+        static void DeleteProduct(SqlConnection connection, int productId)
+        {
+            SqlCommand archiveCommand = new SqlCommand("INSERT INTO ArchivedProducts SELECT * FROM Products WHERE ProductID = @ProductID", connection);
+            archiveCommand.Parameters.AddWithValue("@ProductID", productId);
+            archiveCommand.ExecuteNonQuery();
+            SqlCommand deleteCommand = new SqlCommand("DELETE FROM Products WHERE ProductID = @ProductID", connection);
+            deleteCommand.Parameters.AddWithValue("@ProductID", productId);
+            deleteCommand.ExecuteNonQuery();
+        }
+        static void DeleteProductType(SqlConnection connection, int productTypeId)
+        {
+            SqlCommand archiveCommand = new SqlCommand("INSERT INTO ArchivedProductTypes SELECT * FROM ProductTypes WHERE ProductTypeID = @ProductTypeID", connection);
+            archiveCommand.Parameters.AddWithValue("@ProductTypeID", productTypeId);
+            archiveCommand.ExecuteNonQuery();
+            SqlCommand deleteCommand = new SqlCommand("DELETE FROM ProductTypes WHERE ProductTypeID = @ProductTypeID", connection);
+            deleteCommand.Parameters.AddWithValue("@ProductTypeID", productTypeId);
+            deleteCommand.ExecuteNonQuery();
+        }
+        static void DeleteSalesManager(SqlConnection connection, int managerId)
+        {
+            SqlCommand archiveCommand = new SqlCommand("INSERT INTO ArchivedSalesManagers SELECT * FROM SalesManagers WHERE ManagerID = @ManagerID", connection);
+            archiveCommand.Parameters.AddWithValue("@ManagerID", managerId);
+            archiveCommand.ExecuteNonQuery();
+            SqlCommand deleteCommand = new SqlCommand("DELETE FROM SalesManagers WHERE ManagerID = @ManagerID", connection);
+            deleteCommand.Parameters.AddWithValue("@ManagerID", managerId);
+            deleteCommand.ExecuteNonQuery();
+        }
+        static void DeleteCustomerCompany(SqlConnection connection, int customerId)
+        {
+            SqlCommand archiveCommand = new SqlCommand("INSERT INTO ArchivedCustomers SELECT * FROM Customers WHERE CustomerID = @CustomerID", connection);
+            archiveCommand.Parameters.AddWithValue("@CustomerID", customerId);
+            archiveCommand.ExecuteNonQuery();
+            SqlCommand deleteCommand = new SqlCommand("DELETE FROM Customers WHERE CustomerID = @CustomerID", connection);
+            deleteCommand.Parameters.AddWithValue("@CustomerID", customerId);
+            deleteCommand.ExecuteNonQuery();
         }
     }
 }
