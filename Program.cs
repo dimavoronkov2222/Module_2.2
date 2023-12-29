@@ -4,7 +4,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace Module_2._2
 {
     internal class Program
@@ -17,60 +16,53 @@ namespace Module_2._2
             {
                 connection.Open();
                 Console.WriteLine("Connection successful!");
-                SqlCommand command = new SqlCommand("SELECT * FROM Products", connection);
+                Console.Write("\nEnter a product type: ");
+                string productType = Console.ReadLine();
+                SqlCommand command = new SqlCommand("SELECT * FROM Products WHERE ProductType = @ProductType", connection);
+                command.Parameters.AddWithValue("@ProductType", productType);
                 SqlDataReader reader = command.ExecuteReader();
-                Console.WriteLine("All information about products:");
+                Console.WriteLine("\nProducts of type {0}:", productType);
                 while (reader.Read())
                 {
-                    Console.WriteLine("Product ID: {0}, Product Name: {1}, Product Type: {2}, Quantity: {3}, Cost: {4}", reader[0], reader[1], reader[2], reader[3], reader[4]);
+                    Console.WriteLine("Product ID: {0}, Product Name: {1}, Quantity: {2}, Cost: {3}", reader[0], reader[1], reader[3], reader[4]);
                 }
                 reader.Close();
-                command = new SqlCommand("SELECT DISTINCT ProductType FROM Products", connection);
+                Console.Write("\nEnter a sales manager name: ");
+                string managerName = Console.ReadLine();
+                command = new SqlCommand("SELECT Products.ProductName, Sales.Quantity, Sales.Price, Sales.SaleDate FROM Sales INNER JOIN Products ON Sales.ProductID = Products.ProductID INNER JOIN SalesManagers ON Sales.ManagerID = SalesManagers.ManagerID WHERE SalesManagers.ManagerName = @ManagerName", connection);
+                command.Parameters.AddWithValue("@ManagerName", managerName);
                 reader = command.ExecuteReader();
-                Console.WriteLine("\nAll product types:");
+                Console.WriteLine("\nProducts sold by {0}:", managerName);
                 while (reader.Read())
                 {
-                    Console.WriteLine(reader[0]);
+                    Console.WriteLine("Product Name: {0}, Quantity: {1}, Price: {2}, Sale Date: {3}", reader[0], reader[1], reader[2], reader[3]);
                 }
                 reader.Close();
-                command = new SqlCommand("SELECT * FROM SalesManagers", connection);
+                Console.Write("\nEnter a customer name: ");
+                string customerName = Console.ReadLine();
+                command = new SqlCommand("SELECT Products.ProductName, Sales.Quantity, Sales.Price, Sales.SaleDate FROM Sales INNER JOIN Products ON Sales.ProductID = Products.ProductID INNER JOIN Customers ON Sales.CustomerID = Customers.CustomerID WHERE Customers.CustomerName = @CustomerName", connection);
+                command.Parameters.AddWithValue("@CustomerName", customerName);
                 reader = command.ExecuteReader();
-                Console.WriteLine("\nAll sales managers:");
+                Console.WriteLine("\nProducts purchased by {0}:", customerName);
                 while (reader.Read())
                 {
-                    Console.WriteLine("Manager ID: {0}, Manager Name: {1}", reader[0], reader[1]);
+                    Console.WriteLine("Product Name: {0}, Quantity: {1}, Price: {2}, Sale Date: {3}", reader[0], reader[1], reader[2], reader[3]);
                 }
                 reader.Close();
-                command = new SqlCommand("SELECT * FROM Products WHERE Quantity = (SELECT MAX(Quantity) FROM Products)", connection);
+                command = new SqlCommand("SELECT Products.ProductName, Sales.Quantity, Sales.Price, Sales.SaleDate FROM Sales INNER JOIN Products ON Sales.ProductID = Products.ProductID WHERE Sales.SaleDate >= DATEADD(day, -7, GETDATE())", connection);
                 reader = command.ExecuteReader();
-                Console.WriteLine("\nProducts with maximum quantity:");
+                Console.WriteLine("\nInformation about recent sales:");
                 while (reader.Read())
                 {
-                    Console.WriteLine("Product ID: {0}, Product Name: {1}, Product Type: {2}, Quantity: {3}, Cost: {4}", reader[0], reader[1], reader[2], reader[3], reader[4]);
+                    Console.WriteLine("Product Name: {0}, Quantity: {1}, Price: {2}, Sale Date: {3}", reader[0], reader[1], reader[2], reader[3]);
                 }
                 reader.Close();
-                command = new SqlCommand("SELECT * FROM Products WHERE Quantity = (SELECT MIN(Quantity) FROM Products)", connection);
+                command = new SqlCommand("SELECT ProductType, AVG(Quantity) FROM Products GROUP BY ProductType", connection);
                 reader = command.ExecuteReader();
-                Console.WriteLine("\nProducts with minimum quantity:");
+                Console.WriteLine("\nAverage quantity of products by product type:");
                 while (reader.Read())
                 {
-                    Console.WriteLine("Product ID: {0}, Product Name: {1}, Product Type: {2}, Quantity: {3}, Cost: {4}", reader[0], reader[1], reader[2], reader[3], reader[4]);
-                }
-                reader.Close();
-                command = new SqlCommand("SELECT * FROM Products WHERE Cost = (SELECT MIN(Cost) FROM Products)", connection);
-                reader = command.ExecuteReader();
-                Console.WriteLine("\nProducts with minimum cost:");
-                while (reader.Read())
-                {
-                    Console.WriteLine("Product ID: {0}, Product Name: {1}, Product Type: {2}, Quantity: {3}, Cost: {4}", reader[0], reader[1], reader[2], reader[3], reader[4]);
-                }
-                reader.Close();
-                command = new SqlCommand("SELECT * FROM Products WHERE Cost = (SELECT MAX(Cost) FROM Products)", connection);
-                reader = command.ExecuteReader();
-                Console.WriteLine("\nProducts with maximum cost:");
-                while (reader.Read())
-                {
-                    Console.WriteLine("Product ID: {0}, Product Name: {1}, Product Type: {2}, Quantity: {3}, Cost: {4}", reader[0], reader[1], reader[2], reader[3], reader[4]);
+                    Console.WriteLine("Product Type: {0}, Average Quantity: {1}", reader[0], reader[1]);
                 }
                 reader.Close();
             }
