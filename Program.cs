@@ -22,10 +22,6 @@ namespace Module_2._2
             {
                 Console.WriteLine("Error: " + ex.Message);
             }
-            finally
-            {
-                connection.Close();
-            }
             Console.Read();
         }
     }
