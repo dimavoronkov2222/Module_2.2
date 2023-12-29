@@ -16,6 +16,10 @@ namespace Module_2._2
             {
                 connection.Open();
                 Console.WriteLine("Connection successful!");
+                UpdateProduct(connection, 1, "New Namfdfdse", "New Tybfdsbfdpe", 50, 15.99m);
+                UpdateProductType(connection, 1, "New Tybfdsbfdspe");
+                UpdateSalesManager(connection, 1, "New Manafbdsbfdger Name");
+                UpdateCustomerCompany(connection, 1, "New Compbfdbdsany Name");
                 InsertNewProduct(connection, "Product Name", "Product Type", 100, 10.5m);
                 InsertNewProductType(connection, "New Type");
                 InsertNewSalesManager(connection, "Manager Name");
@@ -102,6 +106,37 @@ namespace Module_2._2
             SqlCommand insertCommand = new SqlCommand("INSERT INTO Customers (CustomerName) VALUES (@CustomerName)", connection);
             insertCommand.Parameters.AddWithValue("@CustomerName", companyName);
             insertCommand.ExecuteNonQuery();
+        }
+        static void UpdateProduct(SqlConnection connection, int productId, string productName, string productType, int quantity, decimal cost)
+        {
+            SqlCommand updateCommand = new SqlCommand("UPDATE Products SET ProductName = @ProductName, ProductType = @ProductType, Quantity = @Quantity, Cost = @Cost WHERE ProductID = @ProductID", connection);
+            updateCommand.Parameters.AddWithValue("@ProductName", productName);
+            updateCommand.Parameters.AddWithValue("@ProductType", productType);
+            updateCommand.Parameters.AddWithValue("@Quantity", quantity);
+            updateCommand.Parameters.AddWithValue("@Cost", cost);
+            updateCommand.Parameters.AddWithValue("@ProductID", productId);
+            updateCommand.ExecuteNonQuery();
+        }
+        static void UpdateProductType(SqlConnection connection, int productTypeId, string productType)
+        {
+            SqlCommand updateCommand = new SqlCommand("UPDATE ProductTypes SET ProductType = @ProductType WHERE ProductTypeID = @ProductTypeID", connection);
+            updateCommand.Parameters.AddWithValue("@ProductType", productType);
+            updateCommand.Parameters.AddWithValue("@ProductTypeID", productTypeId);
+            updateCommand.ExecuteNonQuery();
+        }
+        static void UpdateSalesManager(SqlConnection connection, int managerId, string managerName)
+        {
+            SqlCommand updateCommand = new SqlCommand("UPDATE SalesManagers SET ManagerName = @ManagerName WHERE ManagerID = @ManagerID", connection);
+            updateCommand.Parameters.AddWithValue("@ManagerName", managerName);
+            updateCommand.Parameters.AddWithValue("@ManagerID", managerId);
+            updateCommand.ExecuteNonQuery();
+        }
+        static void UpdateCustomerCompany(SqlConnection connection, int customerId, string companyName)
+        {
+            SqlCommand updateCommand = new SqlCommand("UPDATE Customers SET CustomerName = @CustomerName WHERE CustomerID = @CustomerID", connection);
+            updateCommand.Parameters.AddWithValue("@CustomerName", companyName);
+            updateCommand.Parameters.AddWithValue("@CustomerID", customerId);
+            updateCommand.ExecuteNonQuery();
         }
     }
 }
