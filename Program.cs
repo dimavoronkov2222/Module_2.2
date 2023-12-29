@@ -16,6 +16,17 @@ namespace Module_2._2
             {
                 connection.Open();
                 Console.WriteLine("Connection successful!");
+                ManagerWithMostSales(connection);
+                ManagerWithHighestProfit(connection);
+                DateTime startDate = new DateTime(2023, 1, 1);
+                DateTime endDate = new DateTime(2023, 12, 31);
+                ManagerWithHighestProfitInTimeFrame(connection, startDate, endDate);
+                CompanyWithHighestPurchaseAmount(connection);
+                ProductTypeWithMostUnitsSold(connection);
+                MostProfitableProductType(connection);
+                MostPopularProducts(connection);
+                int daysThreshold = 30;
+                ProductsNotSoldForDays(connection, daysThreshold);
                 UpdateProduct(connection, 1, "New Namfdfdse", "New Tybfdsbfdpe", 50, 15.99m);
                 DeleteProduct(connection, 1);
                 UpdateProductType(connection, 1, "New Tybfdsbfdspe");
@@ -80,6 +91,137 @@ namespace Module_2._2
                 Console.WriteLine("Error: " + ex.Message);
             }
             Console.Read();
+        }
+        static void ProductsNotSoldForDays(SqlConnection connection, int numberOfDays)
+        {
+            SqlCommand command = new SqlCommand("SELECT Products.ProductName " +
+                                                "FROM Products " +
+                                                "WHERE NOT EXISTS (SELECT * FROM Sales " +
+                                                $"                 WHERE Products.ProductID = Sales.ProductID " +
+                                                $"                 AND SaleDate >= DATEADD(day, -{numberOfDays}, GETDATE()))", connection);
+
+            SqlDataReader reader = command.ExecuteReader();
+            Console.WriteLine($"\nProducts not sold for {numberOfDays} days:");
+            while (reader.Read())
+            {
+                Console.WriteLine("Product Name: {0}", reader[0]);
+            }
+            reader.Close();
+        }
+        static void ManagerWithMostSales(SqlConnection connection)
+        {
+            SqlCommand command = new SqlCommand("SELECT TOP 1 SalesManagers.ManagerName, SUM(Sales.Quantity) AS TotalQuantity " +
+                                                "FROM Sales " +
+                                                "INNER JOIN SalesManagers ON Sales.ManagerID = SalesManagers.ManagerID " +
+                                                "GROUP BY SalesManagers.ManagerName " +
+                                                "ORDER BY TotalQuantity DESC", connection);
+            SqlDataReader reader = command.ExecuteReader();
+            Console.WriteLine("\nManager with the most sales by quantity:");
+            while (reader.Read())
+            {
+                Console.WriteLine("Manager Name: {0}, Total Quantity Sold: {1}", reader[0], reader[1]);
+            }
+            reader.Close();
+        }
+        static void MostPopularProducts(SqlConnection connection)
+        {
+            SqlCommand command = new SqlCommand("SELECT TOP 5 Products.ProductName, SUM(Sales.Quantity) AS TotalUnitsSold " +
+                                                "FROM Sales " +
+                                                "INNER JOIN Products ON Sales.ProductID = Products.ProductID " +
+                                                "GROUP BY Products.ProductName " +
+                                                "ORDER BY TotalUnitsSold DESC", connection);
+
+            SqlDataReader reader = command.ExecuteReader();
+            Console.WriteLine("\nMost popular products:");
+            while (reader.Read())
+            {
+                Console.WriteLine("Product Name: {0}, Total Units Sold: {1}", reader[0], reader[1]);
+            }
+            reader.Close();
+        }
+
+        static void ProductTypeWithMostUnitsSold(SqlConnection connection)
+        {
+            SqlCommand command = new SqlCommand("SELECT TOP 1 Products.ProductType, SUM(Sales.Quantity) AS TotalUnitsSold " +
+                                                "FROM Sales " +
+                                                "INNER JOIN Products ON Sales.ProductID = Products.ProductID " +
+                                                "GROUP BY Products.ProductType " +
+                                                "ORDER BY TotalUnitsSold DESC", connection);
+
+            SqlDataReader reader = command.ExecuteReader();
+            Console.WriteLine("\nProduct type with the most units sold:");
+            while (reader.Read())
+            {
+                Console.WriteLine("Product Type: {0}, Total Units Sold: {1}", reader[0], reader[1]);
+            }
+            reader.Close();
+        }
+        static void MostProfitableProductType(SqlConnection connection)
+        {
+            SqlCommand command = new SqlCommand("SELECT TOP 1 Products.ProductType, SUM(Sales.Quantity * Sales.Price) AS TotalProfit " +
+                                                "FROM Sales " +
+                                                "INNER JOIN Products ON Sales.ProductID = Products.ProductID " +
+                                                "GROUP BY Products.ProductType " +
+                                                "ORDER BY TotalProfit DESC", connection);
+
+            SqlDataReader reader = command.ExecuteReader();
+            Console.WriteLine("\nMost profitable product type:");
+            while (reader.Read())
+            {
+                Console.WriteLine("Product Type: {0}, Total Profit: {1}", reader[0], reader[1]);
+            }
+            reader.Close();
+        }
+        static void ManagerWithHighestProfit(SqlConnection connection)
+        {
+            SqlCommand command = new SqlCommand("SELECT TOP 1 SalesManagers.ManagerName, SUM(Sales.Quantity * Sales.Price) AS TotalProfit " +
+                                                "FROM Sales " +
+                                                "INNER JOIN SalesManagers ON Sales.ManagerID = SalesManagers.ManagerID " +
+                                                "GROUP BY SalesManagers.ManagerName " +
+                                                "ORDER BY TotalProfit DESC", connection);
+            SqlDataReader reader = command.ExecuteReader();
+            Console.WriteLine("\nManager with the highest total profit:");
+            while (reader.Read())
+            {
+                Console.WriteLine("Manager Name: {0}, Total Profit: {1}", reader[0], reader[1]);
+            }
+            reader.Close();
+        }
+        static void ManagerWithHighestProfitInTimeFrame(SqlConnection connection, DateTime startDate, DateTime endDate)
+        {
+            SqlCommand command = new SqlCommand("SELECT TOP 1 SalesManagers.ManagerName, SUM(Sales.Quantity * Sales.Price) AS TotalProfit " +
+                                                "FROM Sales " +
+                                                "INNER JOIN SalesManagers ON Sales.ManagerID = SalesManagers.ManagerID " +
+                                                "WHERE Sales.SaleDate BETWEEN @StartDate AND @EndDate " +
+                                                "GROUP BY SalesManagers.ManagerName " +
+                                                "ORDER BY TotalProfit DESC", connection);
+
+            command.Parameters.AddWithValue("@StartDate", startDate);
+            command.Parameters.AddWithValue("@EndDate", endDate);
+
+            SqlDataReader reader = command.ExecuteReader();
+            Console.WriteLine($"\nManager with the highest total profit from {startDate.ToShortDateString()} to {endDate.ToShortDateString()}:");
+            while (reader.Read())
+            {
+                Console.WriteLine("Manager Name: {0}, Total Profit: {1}", reader[0], reader[1]);
+            }
+            reader.Close();
+        }
+        static void CompanyWithHighestPurchaseAmount(SqlConnection connection)
+        {
+            SqlCommand command = new SqlCommand("SELECT TOP 1 Customers.CustomerName, SUM(Sales.Quantity * Sales.Price) AS TotalAmount " +
+                                                "FROM Sales " +
+                                                "INNER JOIN Customers ON Sales.CustomerID = Customers.CustomerID " +
+                                                "GROUP BY Customers.CustomerName " +
+                                                "ORDER BY TotalAmount DESC", connection);
+
+            SqlDataReader reader = command.ExecuteReader();
+            Console.WriteLine("\nCompany with the highest purchase amount:");
+            while (reader.Read())
+            {
+                Console.WriteLine("Company Name: {0}, Total Purchase Amount: {1}", reader[0], reader[1]);
+            }
+            reader.Close();
         }
         static void InsertNewProduct(SqlConnection connection, string productName, string productType, int quantity, decimal cost)
         {
